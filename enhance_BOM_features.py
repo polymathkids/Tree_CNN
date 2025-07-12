@@ -3,6 +3,9 @@
 import pandas as pd
 
 def analyze_bom(df):
+    # print available columns
+    print("Available columns in the DataFrame:")
+    print(df.columns.tolist())
     # Step 1: Mark IsAssembly (True if Component appears as a Next Assembly anywhere else)
     next_assemblies = set(df['Next Assembly'].unique())
     df['IsAssembly'] = df['Component'].apply(lambda x: x in next_assemblies)
@@ -22,6 +25,8 @@ def analyze_bom(df):
         children_by_wbs[parent] = sorted(set(children))
 
     # make dictionary of WBS descriptions by WBS Code
+    # trim spaces from WBS Description
+    df['WBS Description'] = df['WBS Description'].str.strip()
     wbs_descriptions = dict(zip(df['WBS Code'], df['WBS Description']))
 
     # Print child WBS relationships in format WBS Code: WBS Description
@@ -35,5 +40,5 @@ def analyze_bom(df):
 if __name__ == '__main__':
     #load the BOM data into DF if not already loaded
     df = pd.read_csv('bom_data.csv')
-    enriched_df, child_dict = analyze_bom(df)
+    enriched_df, child_wbs_dict = analyze_bom(df)
     enriched_df.to_csv('bom_with_structure.csv', index=False)
